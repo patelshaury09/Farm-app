@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S P FARM ULTRA PRO</title>
+<title>S P FARM ULTRA PRO MAX</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -15,6 +15,11 @@
 --text:#fff;
 --primary:#00c6ff;
 }
+.light{
+--bg:#f5f5f5;
+--glass:#fff;
+--text:#000;
+}
 
 body{
 margin:0;
@@ -23,13 +28,9 @@ background:var(--bg);
 color:var(--text);
 }
 
-/* LOGIN */
 #loginBox{
 position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
+top:0;left:0;width:100%;height:100%;
 background:#000;
 display:flex;
 flex-direction:column;
@@ -38,7 +39,6 @@ align-items:center;
 z-index:999;
 }
 
-/* SIDEBAR */
 .sidebar{
 width:220px;
 background:rgba(0,0,0,0.6);
@@ -59,7 +59,6 @@ border:1px solid #fff;
 color:#fff;
 }
 
-/* MAIN */
 .main{
 margin-left:240px;
 padding:20px;
@@ -105,12 +104,10 @@ border-radius:10px;
 padding:10px;
 }
 
-/* POPUP */
 #popup{
 display:none;
 position:fixed;
-top:50%;
-left:50%;
+top:50%;left:50%;
 transform:translate(-50%,-50%);
 background:#000;
 color:#fff;
@@ -118,8 +115,18 @@ padding:20px;
 border-radius:10px;
 text-align:center;
 }
-
 #popup img{width:120px}
+
+#toast{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#000;
+color:#fff;
+padding:10px;
+border-radius:8px;
+display:none;
+}
 </style>
 </head>
 
@@ -128,11 +135,11 @@ text-align:center;
 <!-- LOGIN -->
 <div id="loginBox">
 <h2>🔐 Login</h2>
-<input type="password" id="pass" placeholder="Password">
+<input type="password" id="pass">
 <button onclick="login()">Login</button>
 
 <h3>Change Password</h3>
-<input type="password" id="newPass" placeholder="New Password">
+<input type="password" id="newPass">
 <button onclick="changePass()">Change</button>
 </div>
 
@@ -142,12 +149,40 @@ text-align:center;
 <button onclick="showSection('dashboard')">Dashboard</button>
 <button onclick="showSection('records')">Records</button>
 <button onclick="showSection('invoice')">Invoice</button>
+<button onclick="backup()">Backup</button>
+<button onclick="toggleMode()">Mode</button>
+<input placeholder="Search..." oninput="searchData(this.value)">
 </div>
 
 <!-- MAIN -->
 <div class="main" id="main">
 
 <!-- DASHBOARD -->
+ <!-- 🔍 BREED SEARCH -->
+<input placeholder="Search Breed..." oninput="filterBreed(this.value)">
+
+<!-- 💰 BUY / SELL -->
+<div class="card">
+<h3>💰 Buy / Sell Cow</h3>
+<input id="cowName" placeholder="Cow Name">
+<input id="cowPrice" type="number" placeholder="Price">
+<select id="cowType">
+<option>Buy</option>
+<option>Sell</option>
+</select>
+<button onclick="addTrade()">Add</button>
+
+<table id="tradeTable"></table>
+</div>
+
+<!-- 📊 PER COW TRACK -->
+<div class="card">
+<h3>📊 Per Cow Milk Tracking</h3>
+<input id="cowTrackName" placeholder="Cow Name">
+<input id="cowMilk" type="number" placeholder="Milk">
+<button onclick="addCowMilk()">Add</button>
+<canvas id="cowChart"></canvas>
+</div>
 <div id="dashboard">
 
 <div class="grid">
@@ -166,7 +201,12 @@ text-align:center;
 </div>
 </div>
 
-<!-- COW BREEDS (ONLY ONCE) -->
+<div class="card">
+<h3>📊 Summary</h3>
+<p id="summary"></p>
+</div>
+
+<!-- 🐄 COW BREEDS -->
 <div class="card">
 <h3>🐄 Cow Breeds</h3>
 <table>
@@ -174,52 +214,52 @@ text-align:center;
 
 <tr onclick="showBreed('Gir','12L/day','₹60000','Gujarat','https://upload.wikimedia.org/wikipedia/commons/0/0c/Gir_cow.jpg')">
 <td>Gir</td><td>12L</td><td>₹60000</td>
-<td><img src="c:\shaury.html\gir.jpg"></td>
+<td><img src="gir.jpg"></td>
 </tr>
 
 <tr onclick="showBreed('Jersey','15L/day','₹50000','USA','https://upload.wikimedia.org/wikipedia/commons/3/3a/Jersey_cow.jpg')">
 <td>Jersey</td><td>15L</td><td>₹50000</td>
-<td><img src="c:\shaury.html\Jersey.jpg"></td>
+<td><img src="Jersey.jpg"></td>
 </tr>
 
 <tr onclick="showBreed('Sahiwal','10L/day','₹55000','India','https://upload.wikimedia.org/wikipedia/commons/5/5e/Sahiwal_cow.jpg')">
 <td>Sahiwal</td><td>10L</td><td>₹55000</td>
-<td><img src="c:\shaury.html\Sahiwal.jpg"></td>
+<td><img src="Sahiwal.jpg"></td>
 </tr>
 
 <tr onclick="showBreed('HF','25L/day','₹70000','Europe','https://upload.wikimedia.org/wikipedia/commons/8/8c/Holstein_cow.jpg')">
 <td>HF</td><td>25L</td><td>₹70000</td>
-<td><img src="c:\shaury.html\HF.jpg"></td>
+<td><img src="HF.jpg"></td>
 </tr>
 
 <tr onclick="showBreed('Red Sindhi','9L/day','₹48000','Pakistan','https://upload.wikimedia.org/wikipedia/commons/4/4c/Red_sindhi.jpg')">
 <td>Red Sindhi</td><td>9L</td><td>₹48000</td>
-<td><img src="c:\shaury.html\Red Sindhi.jpg"></td>
+<td><img src="Red Sindhi.jpg"></td>
 </tr>
 
 <tr onclick="showBreed('Tharparkar','10L/day','₹52000','Rajasthan','https://upload.wikimedia.org/wikipedia/commons/6/6d/Tharparkar_cow.jpg')">
 <td>Tharparkar</td><td>10L</td><td>₹52000</td>
-<td><img src="c:\shaury.html\Tharparkar.jpg"></td>
+<td><img src="Tharparkar.jpg"></td>
 </tr>
 
 <tr onclick="showBreed('Kankrej','12L/day','₹58000','Gujarat','https://upload.wikimedia.org/wikipedia/commons/2/2c/Kankrej_cow.jpg')">
 <td>Kankrej</td><td>12L</td><td>₹58000</td>
-<td><img src="c:\shaury.html\Kankrej.jpg"></td>
+<td><img src="Kankrej.jpg"></td>
 </tr>
 
 <tr onclick="showBreed('Ongole','8L/day','₹45000','AP','https://upload.wikimedia.org/wikipedia/commons/1/1c/Ongole_cattle.jpg')">
 <td>Ongole</td><td>8L</td><td>₹45000</td>
-<td><img src="c:\shaury.html\Ongole.jpg"></td>
+<td><img src="Ongole.jpg"></td>
 </tr>
 
 <tr onclick="showBreed('Deoni','7L/day','₹40000','MH','https://upload.wikimedia.org/wikipedia/commons/7/7d/Deoni_cow.jpg')">
 <td>Deoni</td><td>7L</td><td>₹40000</td>
-<td><img src="c:\shaury.html\Deoni.jpg"></td>
+<td><img src="Deoni.jpg"></td>
 </tr>
 
 <tr onclick="showBreed('Rathi','9L/day','₹47000','Rajasthan','https://upload.wikimedia.org/wikipedia/commons/9/9d/Rathi_cow.jpg')">
 <td>Rathi</td><td>9L</td><td>₹47000</td>
-<td><img src="c:\shaury.html\Rathi.jpg"></td>
+<td><img src="Rathi.jpg"></td>
 </tr>
 
 </table>
@@ -260,16 +300,16 @@ text-align:center;
 <button onclick="closePopup()">Close</button>
 </div>
 
+<div id="toast"></div>
+
 <script>
 
 // PASSWORD
-if(!localStorage.getItem("pass")){
-localStorage.setItem("pass","1234");
-}
+if(!localStorage.pass){localStorage.pass="1234";}
 
-// LOGIN FIX
+// LOGIN
 function login(){
-if(pass.value === localStorage.getItem("pass")){
+if(pass.value===localStorage.pass){
 loginBox.style.display="none";
 main.style.display="block";
 sidebar.style.display="block";
@@ -280,11 +320,11 @@ drawCharts();
 
 // CHANGE PASSWORD
 function changePass(){
-localStorage.setItem("pass", newPass.value);
+localStorage.pass=newPass.value;
 alert("Password Changed");
 }
 
-// NAVIGATION
+// NAV
 function showSection(id){
 dashboard.style.display="none";
 records.style.display="none";
@@ -293,90 +333,134 @@ document.getElementById(id).style.display="block";
 if(id==="records") setTimeout(drawCharts,200);
 }
 
-// BREED POPUP
-function showBreed(n,m,p,pl,img){
-popup.style.display="block";
-bname.innerText=n;
-bmilk.innerText="Milk: "+m;
-bprice.innerText="Price: "+p;
-bplace.innerText="Origin: "+pl;
-bimg.src=img;
-}
-function closePopup(){popup.style.display="none";}
-
 // DATA
-if(!localStorage.getItem("data")){
-localStorage.setItem("data",JSON.stringify([]));
-}
+if(!localStorage.data){localStorage.data="[]";}
 
 // SAVE
 function saveRecord(){
-let d=JSON.parse(localStorage.getItem("data"));
-let profit = Number(milk.value) - Number(expense.value);
-d.push({date:date.value,milk:Number(milk.value),expense:Number(expense.value),profit:profit});
-localStorage.setItem("data",JSON.stringify(d));
+let d=JSON.parse(localStorage.data);
+let profit=Number(milk.value)-Number(expense.value);
+
+d.push({date:date.value,milk:+milk.value,expense:+expense.value,profit:profit});
+
+localStorage.data=JSON.stringify(d);
+showToast("Saved ✅");
 load();
 drawCharts();
 }
 
 // LOAD
 function load(){
-let d=JSON.parse(localStorage.getItem("data"));
-let html="<tr><th>Date</th><th>Milk</th><th>Expense</th><th>Profit</th></tr>";
-d.forEach(r=>{
-html+=`<tr><td>${r.date}</td><td>${r.milk}</td><td>${r.expense}</td><td>${r.profit}</td></tr>`;
+let d=JSON.parse(localStorage.data);
+let html="<tr><th>Date</th><th>Milk</th><th>Expense</th><th>Profit</th><th>❌</th></tr>";
+
+let tm=0,te=0,tp=0;
+
+d.forEach((r,i)=>{
+tm+=r.milk;
+te+=r.expense;
+tp+=r.profit;
+
+html+=`<tr>
+<td>${r.date}</td>
+<td>${r.milk}</td>
+<td>${r.expense}</td>
+<td>${r.profit}</td>
+<td><button onclick="deleteRecord(${i})">X</button></td>
+</tr>`;
 });
+
 table.innerHTML=html;
+summary.innerText=`Milk:${tm} | Expense:${te} | Profit:${tp}`;
+}
+
+// DELETE
+function deleteRecord(i){
+let d=JSON.parse(localStorage.data);
+d.splice(i,1);
+localStorage.data=JSON.stringify(d);
+load();
+drawCharts();
+}
+
+// SEARCH
+function searchData(q){
+let rows=document.querySelectorAll("#table tr");
+rows.forEach(r=>{
+r.style.display=r.innerText.toLowerCase().includes(q.toLowerCase())?"":"none";
+});
+}
+
+// TOAST
+function showToast(msg){
+let t=document.getElementById("toast");
+t.innerText=msg;
+t.style.display="block";
+setTimeout(()=>t.style.display="none",2000);
+}
+
+// BACKUP
+function backup(){
+let blob=new Blob([localStorage.data],{type:"application/json"});
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="farm_backup.json";
+a.click();
+}
+
+// DARK MODE
+function toggleMode(){
+document.body.classList.toggle("light");
 }
 
 // INVOICE
 function generateInvoice(){
-let total = liters.value * rate.value;
+let total=liters.value*rate.value;
 bill.innerHTML=`Total ₹${total}`;
 }
 
 // PDF
 function downloadPDF(){
 const { jsPDF } = window.jspdf;
-let doc = new jsPDF();
+let doc=new jsPDF();
 doc.text("S P FARM Invoice",20,20);
 doc.text("Customer: "+cust.value,20,40);
 doc.text("Total: ₹"+(liters.value*rate.value),20,60);
 doc.save("invoice.pdf");
 }
 
-// CHART FIX
-let milkChart, expenseChart, profitChart;
+// CHART
+let milkChart,expenseChart,profitChart;
 
 function drawCharts(){
-let d=JSON.parse(localStorage.getItem("data"));
+let d=JSON.parse(localStorage.data);
 
 if(milkChart) milkChart.destroy();
 if(expenseChart) expenseChart.destroy();
 if(profitChart) profitChart.destroy();
 
-let labels = d.map(x=>x.date);
+let labels=d.map(x=>x.date);
 
-milkChart = new Chart(milkChart=document.getElementById("milkChart"),{
+milkChart=new Chart(document.getElementById("milkChart"),{
 type:"line",
-data:{labels:labels,datasets:[{label:"Milk",data:d.map(x=>x.milk)}]}
+data:{labels:labels,datasets:[{label:"Milk",data:d.map(x=>x.milk),borderColor:"blue"}]}
 });
 
-expenseChart = new Chart(document.getElementById("expenseChart"),{
+expenseChart=new Chart(document.getElementById("expenseChart"),{
 type:"line",
-data:{labels:labels,datasets:[{label:"Expense",data:d.map(x=>x.expense)}]}
+data:{labels:labels,datasets:[{label:"Expense",data:d.map(x=>x.expense),borderColor:"red"}]}
 });
 
-profitChart = new Chart(document.getElementById("profitChart"),{
+profitChart=new Chart(document.getElementById("profitChart"),{
 type:"line",
-data:{labels:labels,datasets:[{label:"Profit",data:d.map(x=>x.profit)}]}
+data:{labels:labels,datasets:[{label:"Profit",data:d.map(x=>x.profit),borderColor:"green"}]}
 });
 }
 
+// AUTO CALC
 function autoCalc(){
 result.innerText="Income: ₹"+(price.value*100);
 }
-
 
 </script>
 
