@@ -237,9 +237,11 @@ display:none;
 <td><img src="https://raghunandansureshgaushala.com/wp-content/uploads/2021/11/red-sindhi-1.jpg"></td>
 </tr>
 
-<tr onclick="showBreed('Tharparkar','10L/day','₹52000','Rajasthan','https://cpimg.tistatic.com/07179573/b/4/Pure-Tharparkar-Cow.jpg')">
+<tr onclick="showBreed('Tharparkar','10L/day','₹52000','Rajasthan','https://cpimg.tistatic.com/08327105/b/4/Pure-Breed-Tharparkar-Cow.jpg')">
 <td>Tharparkar</td><td>10L</td><td>₹52000</td>
-<td><img src="https://cpimg.tistatic.com/07179573/b/4/Pure-Tharparkar-Cow.jpg"></td>
+<td>
+<img src="https://cpimg.tistatic.com/08327105/b/4/Pure-Breed-Tharparkar-Cow.jpg">
+</td>
 </tr>
 
 <tr onclick="showBreed('Kankrej','12L/day','₹58000','Gujarat','https://www.dairyknowledge.in/dkp/sites/default/files/styles/medium_large/public/kankrej_cow.jpg?itok=7Mp-cO4S')">
@@ -257,9 +259,11 @@ display:none;
 <td><img src="https://cdn.shopify.com/s/files/1/0987/0002/files/Deoni_large.jpg?9657090759441910019.jpg"></td>
 </tr>
 
-<tr onclick="showBreed('Rathi','9L/day','₹47000','https://www.dairyknowledge.in/dkp/sites/default/files/styles/medium_large/public/rathi_cow.jpg?itok=hU1pY0Q8')">
+<tr onclick="showBreed('Rathi','9L/day','₹47000','Rajasthan','https://www.dairyknowledge.in/dkp/sites/default/files/styles/medium_large/public/rathi_cow.jpg?itok=hU1pY0Q8')">
 <td>Rathi</td><td>9L</td><td>₹47000</td>
-<td><img src="https://www.dairyknowledge.in/dkp/sites/default/files/styles/medium_large/public/rathi_cow.jpg?itok=hU1pY0Q8"></td>
+<td>
+<img src="https://www.dairyknowledge.in/dkp/sites/default/files/styles/medium_large/public/rathi_cow.jpg?itok=hU1pY0Q8">
+</td>
 </tr>
 
 </table>
@@ -323,7 +327,23 @@ function changePass(){
 localStorage.pass=newPass.value;
 alert("Password Changed");
 }
+//////////////////////////////
+// 🔥 BREED POPUP FUNCTION
+//////////////////////////////
 
+function showBreed(name, milk, price, place, img){
+document.getElementById("bname").innerText = name;
+document.getElementById("bmilk").innerText = "Milk: " + milk;
+document.getElementById("bprice").innerText = "Price: " + price;
+document.getElementById("bplace").innerText = "Place: " + place;
+document.getElementById("bimg").src = img;
+
+document.getElementById("popup").style.display = "block";
+}
+
+function closePopup(){
+document.getElementById("popup").style.display = "none";
+}
 // NAV
 function showSection(id){
 dashboard.style.display="none";
